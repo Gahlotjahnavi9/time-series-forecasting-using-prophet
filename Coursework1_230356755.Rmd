@@ -1,0 +1,66 @@
+---
+title: "Time Series"
+author: "Jahnavi Jahnavi"
+date: "2024-03-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{R}
+library(prophet)
+library(zoo)
+
+#Loading AirPassengers dataset
+AirPassengers 
+
+#The classic Box & Jenkins airline data. Monthly totals of international airline passengers, 1949 to 1960. monthly time series
+
+#Displaying the structure, summary, and first few rows of the dataset
+str(AirPassengers)
+summary(AirPassengers)
+head(AirPassengers)
+
+#Plotting the original data
+plot(AirPassengers)
+
+#Converting the AirPassengers data to data frame
+AirPassengers.df <- data.frame( ds = as.yearmon(time(AirPassengers)), y = AirPassengers)
+
+#Fit a Prophet model
+propdata <- prophet(AirPassengers.df)
+
+#Generate future data timestamps for prediction
+futuredata <- make_future_dataframe(propdata, periods = 8, freq = "quarter")
+
+#Making predictions
+predictions <- predict(propdata, futuredata)
+
+# plotting the forecast
+future <- make_future_dataframe(propdata, 
+                    periods=365) 
+  
+#Printing the predictions 
+cat("\nPredictions:\n") 
+tail(future)
+
+#forecasting the data using predictions
+forecast <- predict(propdata, future) 
+tail(forecast[c('ds','yhat',  
+    'yhat_lower','yhat_upper')])
+
+#Plotting the results
+plot(propdata, forecast)
+
+#plotting the trend and yearly seasonality
+prophet_plot_components(propdata, forecast)
+
+```
+
+-> From the first graph, we can conclude that the number of airpassengers are increasing steadily from year 1950 to 1960 and we can observe an upward trend.
+
+-> in the given graph, we can see that the above graph shows the forecasted values of air passengers in which black dots are refering to orignal data, dark blue is referring to predicted value(yhat), the light blue area shows the yhat_upper and yhat_lower value.
+
+->the above 2 graphs shows trend and seasonality of time series. In the first one, we can see that airpassengers have shown a continual increase trend over a given period of time. The seasonality of the dataset is shown in the second graph over a period of time, which is yearly, and signifies that air passengers were maximum between June and August.
